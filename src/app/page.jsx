@@ -19,35 +19,27 @@ function SocialShare() {
         };
 
         fetchImage();
-    }, [postImage]);
+    }, []);
 
-    const downloadAndShare = async () => {
+    const handleShare = async () => {
         if (!imageFile) {
             alert("Image not loaded yet.");
             return;
         }
 
-        const tempLink = document.createElement("a");
-        tempLink.href = URL.createObjectURL(imageFile);
-        tempLink.download = imageFile.name;
-        tempLink.style.display = "none";
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
-
-        // Attempt to share the downloaded file.
-        if (navigator.share) {
+        if (navigator.share && navigator.canShare({ files: [imageFile] })) {
             try {
                 await navigator.share({
-                    files: [imageFile],
-                    title: "Share Image",
+                    title: "This is a post title",
+                    text: "This is a post description",
+                    files: [imageFile], // Directly sharing the image
                 });
             } catch (error) {
                 console.error("Error sharing:", error);
-                alert("Sharing failed. Please share manually from your device's gallery.");
+                alert("Sharing failed.");
             }
         } else {
-            alert("Sharing not supported. Please share manually from your device's gallery.");
+            alert("Your device does not support image sharing.");
         }
     };
 
@@ -60,10 +52,10 @@ function SocialShare() {
             />
 
             <button
-                onClick={downloadAndShare}
+                onClick={handleShare}
                 className="p-2 border border-blue-800 bg-blue-100 rounded-md my-2"
             >
-                Download and Share
+                Share Post
             </button>
         </div>
     );
