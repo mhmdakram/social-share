@@ -1,15 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 function SocialShare() {
     const postTitle = "This is a post title";
     const postDescription = "This is a post description";
-    const postImage = `${window.location.origin}/post-image.jpg`; // Absolute URL for sharing
-    const postUrl = window.location.href; // The current page URL
+
+    const [postImage, setPostImage] = useState("");
+    const [postUrl, setPostUrl] = useState("");
+
+    useEffect(() => {
+        // Ensure window is available before setting values
+        if (typeof window !== "undefined") {
+            setPostImage(`${window.location.origin}/post-image.jpg`);
+            setPostUrl(window.location.href);
+        }
+    }, []);
 
     // Native Web Share API (for iOS & Android)
     const handleShare = async () => {
+        if (!postImage) return alert("Image not loaded yet.");
+
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -28,6 +39,8 @@ function SocialShare() {
 
     // Instagram Share (Deep Linking)
     const shareOnInstagram = () => {
+        if (!postImage) return alert("Image not loaded yet.");
+
         const instagramDeepLink = `instagram://library?AssetPath=${encodeURIComponent(postImage)}`;
         window.location.href = instagramDeepLink;
 
@@ -38,17 +51,21 @@ function SocialShare() {
 
     // LinkedIn Share (Redirect to LinkedIn post creation)
     const shareOnLinkedIn = () => {
+        if (!postUrl) return alert("URL not loaded yet.");
+
         const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
         window.open(linkedInShareUrl, "_blank");
     };
 
     return (
         <div className="w-full h-lvh flex flex-col items-center justify-center text-center p-4">
-            <img
-                src={postImage}
-                alt="Post image"
-                className="w-80 h-60 object-cover my-4 rounded-md"
-            />
+            {postImage && (
+                <img
+                    src={postImage}
+                    alt="Post image"
+                    className="w-80 h-60 object-cover my-4 rounded-md"
+                />
+            )}
 
             {/* Native Share Button */}
             <button
